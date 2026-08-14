@@ -5,14 +5,14 @@ import numpy as np
 
 def validate_embedding(embedding) -> bool:
     """
-    Validate that an embedding is a non-empty numeric vector.
+    Validate that an embedding is a non-empty numeric 1D vector.
     """
     if embedding is None:
         return False
 
     array = np.asarray(embedding)
 
-    if array.size == 0:
+    if array.ndim != 1 or array.size == 0:
         return False
 
     if not np.issubdtype(array.dtype, np.number):

@@ -34,4 +34,4 @@ class EmbeddingModel:
         """
         Return the dimensionality of the embedding vectors.
         """
-        return self.model.get_sentence_embedding_dimension()
+        return self.model.get_embedding_dimension()
