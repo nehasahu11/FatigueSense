@@ -24,7 +24,7 @@ class FatigueScoringAgent:
 
         Eye closure / EAR       = 35
         Eye state               = 15
-        Blink / eye closure    = 10
+        Blink / eye closure     = 10
         Yawn                    = 25
         Under-eye darkness      = 15
 
@@ -80,6 +80,11 @@ class FatigueScoringAgent:
         Convert EAR into a 0-35 fatigue contribution.
 
         Lower EAR indicates greater eye closure.
+
+        Scoring:
+            EAR >= 0.30       -> 0
+            EAR <= 0.20       -> 35
+            Between           -> proportional score
         """
 
         if average_ear is None:
@@ -160,8 +165,8 @@ class FatigueScoringAgent:
         Scoring:
 
             Both eyes closed / possible blink -> 10
-            One eye closed                  -> 5
-            Eyes open                       -> 0
+            One eye closed                   -> 5
+            Eyes open                        -> 0
         """
 
         if both_eyes_closed or possible_blink:
@@ -184,9 +189,17 @@ class FatigueScoringAgent:
         """
         Convert mouth opening/yawn information into
         a 0-25 fatigue contribution.
+
+        Scoring:
+
+            yawn detected       -> 25
+            MAR <= 0.30         -> 0
+            MAR >= 0.60         -> 20
+            Between             -> proportional 0-20
         """
 
         if mouth_aspect_ratio is not None:
+
             if mouth_aspect_ratio < 0:
                 raise ValueError(
                     "Mouth Aspect Ratio cannot be negative."
@@ -261,7 +274,8 @@ class FatigueScoringAgent:
 
         score = ratio * self.MAX_DARK_CIRCLE_SCORE
 
-        # Do not exceed the maximum contribution.
+        # Add a small supporting contribution when the
+        # detector explicitly identifies dark circles.
         if dark_circle_present:
             score += 2.0
 
@@ -286,8 +300,8 @@ class FatigueScoringAgent:
         """
         Calculate the final fatigue score.
 
-        The individual signals are combined into a
-        normalized 0-100 score.
+        The individual signals are combined into
+        a normalized 0-100 score.
         """
 
         # -----------------------------------------------------
@@ -373,6 +387,10 @@ class FatigueScoringAgent:
             final_score
         )
 
+        # -----------------------------------------------------
+        # Return result
+        # -----------------------------------------------------
+
         return {
             "fatigue_score": round(
                 final_score,
@@ -419,6 +437,10 @@ class FatigueScoringAgent:
     ) -> str:
         """
         Convert fatigue score into risk level.
+
+        0-33   -> Low
+        34-66  -> Medium
+        67-100 -> High
         """
 
         if score < 0:
@@ -446,9 +468,14 @@ class FatigueScoringAgent:
         Public scoring method.
 
         Accepts a dictionary from ImageAnalysisAgent,
-        validates it using CVFeatureSchema, and calculates
-        the fatigue score.
+        validates it using CVFeatureSchema, calculates
+        the fatigue score, and validates the final result
+        using FatigueResult.
         """
+
+        # -----------------------------------------------------
+        # Validate incoming CV features
+        # -----------------------------------------------------
 
         validated_features = (
             CVFeatureSchema.model_validate(
@@ -456,6 +483,26 @@ class FatigueScoringAgent:
             )
         )
 
-        return self.calculate_score(
+        # -----------------------------------------------------
+        # Calculate fatigue result
+        # -----------------------------------------------------
+
+        result = self.calculate_score(
             validated_features
         )
+
+        # -----------------------------------------------------
+        # Validate final fatigue result
+        # -----------------------------------------------------
+
+        validated_result = (
+            FatigueResult.model_validate(
+                result
+            )
+        )
+
+        # -----------------------------------------------------
+        # Return clean dictionary
+        # -----------------------------------------------------
+
+        return validated_result.model_dump()

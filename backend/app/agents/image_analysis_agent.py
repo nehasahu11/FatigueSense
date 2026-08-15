@@ -10,11 +10,10 @@ class ImageAnalysisAgent:
     AI agent responsible for analyzing an uploaded image.
 
     Responsibilities:
-
         1. Validate/preprocess image
         2. Extract computer-vision features
         3. Validate extracted features
-        4. Return structured analysis
+        4. Return structured CV analysis
 
     The agent does NOT calculate the final fatigue score.
 
@@ -31,14 +30,11 @@ class ImageAnalysisAgent:
                 Directory containing MediaPipe models.
         """
 
-        self.model_directory = Path(
-            model_directory
-        )
+        self.model_directory = Path(model_directory)
 
         if not self.model_directory.exists():
             raise FileNotFoundError(
-                f"Model directory not found: "
-                f"{self.model_directory}"
+                f"Model directory not found: {self.model_directory}"
             )
 
         self.feature_extractor = FeatureExtractor(
@@ -54,13 +50,12 @@ class ImageAnalysisAgent:
                 Path to the uploaded image.
 
         Returns:
-            Structured image analysis containing
-            validated CV features.
+            Validated CV feature dictionary.
         """
 
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
         # 1. Validate image path
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
 
         image_path = Path(image_path)
 
@@ -74,35 +69,33 @@ class ImageAnalysisAgent:
                 f"Image path is not a file: {image_path}"
             )
 
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
         # 2. Preprocess image
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
 
         image = preprocess_image(
             str(image_path)
         )
 
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
         # 3. Extract CV features
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
 
         features = self.feature_extractor.extract(
             image
         )
 
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
         # 4. Validate using Pydantic schema
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
 
-        validated_features = (
-            CVFeatureSchema.model_validate(
-                features
-            )
+        validated_features = CVFeatureSchema.model_validate(
+            features
         )
 
-        # -----------------------------------------------------
-        # 5. Return structured result
-        # -----------------------------------------------------
+        # ---------------------------------------------------------
+        # 5. Return validated structured result
+        # ---------------------------------------------------------
 
         return validated_features.model_dump()
 
