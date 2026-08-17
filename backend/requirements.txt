@@ -1,0 +1,70 @@
+# ==============================
+# FatigueSense - Backend
+# ==============================
+
+# Python API
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+pydantic-settings
+
+# Environment / Configuration
+python-dotenv
+
+# ==============================
+# Computer Vision
+# ==============================
+
+opencv-python
+mediapipe
+numpy
+Pillow
+scipy
+
+# ==============================
+# Machine Learning
+# ==============================
+
+scikit-learn
+torch
+transformers
+sentence-transformers
+
+# ==============================
+# RAG / Retrieval
+# ==============================
+
+chromadb
+rank-bm25
+
+# ==============================
+# Document Processing
+# ==============================
+
+pypdf
+PyMuPDF
+
+# ==============================
+# Database
+# ==============================
+
+SQLAlchemy
+PyMySQL
+
+# NoSQL / Firebase
+firebase-admin
+
+# ==============================
+# HTTP / Utilities
+# ==============================
+
+requests
+
+# ==============================
+# Testing
+# ==============================
+
+pytest
+pytest-asyncio
+httpx
