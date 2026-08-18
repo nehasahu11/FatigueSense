@@ -11,11 +11,13 @@ class FatigueWorkflow:
     """
     Main orchestration workflow for FatigueSense.
 
-    Current pipeline:
+    Pipeline:
 
         Image
           ↓
         ImageAnalysisAgent
+          ↓
+        Human Face Validation
           ↓
         CV Features
           ↓
@@ -24,10 +26,6 @@ class FatigueWorkflow:
         FatigueScoringAgent
           ↓
         Final Fatigue Result
-
-    Recommendation and history persistence are not included
-    yet because their implementations are not currently
-    available in the integrated branch.
     """
 
     def __init__(
@@ -42,16 +40,13 @@ class FatigueWorkflow:
             model_directory:
                 Directory containing the MediaPipe model files.
 
-                Default:
-                    backend/data/models
-
             rag_pipeline:
                 Optional RAGPipeline instance.
                 Useful for testing and dependency injection.
         """
 
         # =====================================================
-        # 1. Resolve model directory
+        # 1. RESOLVE MODEL DIRECTORY
         # =====================================================
 
         if model_directory is None:
@@ -64,7 +59,7 @@ class FatigueWorkflow:
         self.model_directory = Path(model_directory)
 
         # =====================================================
-        # 2. Validate model directory
+        # 2. VALIDATE MODEL DIRECTORY
         # =====================================================
 
         if not self.model_directory.exists():
@@ -80,7 +75,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # 3. Initialize Image Analysis Agent
+        # 3. INITIALIZE IMAGE ANALYSIS AGENT
         # =====================================================
 
         self.image_agent = ImageAnalysisAgent(
@@ -90,13 +85,13 @@ class FatigueWorkflow:
         )
 
         # =====================================================
-        # 4. Initialize Fatigue Scoring Agent
+        # 4. INITIALIZE FATIGUE SCORING AGENT
         # =====================================================
 
         self.scoring_agent = FatigueScoringAgent()
 
         # =====================================================
-        # 5. Initialize RAG Pipeline
+        # 5. INITIALIZE RAG PIPELINE
         # =====================================================
 
         self.rag_pipeline = (
@@ -122,26 +117,14 @@ class FatigueWorkflow:
 
             1. Create analysis state
             2. Analyze image
-            3. Retrieve relevant RAG context
-            4. Calculate fatigue score
-            5. Return final result
-
-        Args:
-            user_id:
-                ID of the user performing the analysis.
-
-            image_path:
-                Path to the image being analyzed.
-
-            image_name:
-                Original image filename.
-
-        Returns:
-            Dictionary containing the analysis result.
+            3. Validate human face
+            4. Retrieve relevant RAG context
+            5. Calculate fatigue score
+            6. Return final result
         """
 
         # =====================================================
-        # 1. Create analysis state
+        # 1. CREATE ANALYSIS STATE
         # =====================================================
 
         state = AnalysisState(
@@ -175,6 +158,40 @@ class FatigueWorkflow:
             )
 
             # =================================================
+            # HUMAN FACE VALIDATION
+            # =================================================
+
+            face_detected = features.get(
+                "face_detected",
+                False,
+            )
+
+            if not face_detected:
+                error_message = (
+                    "No human face detected. "
+                    "Please upload a clear image containing "
+                    "a human face."
+                )
+
+                state.error = error_message
+
+                print(
+                    f"WORKFLOW VALIDATION ERROR: "
+                    f"{error_message}"
+                )
+
+                print(
+                    "========== WORKFLOW STOPPED ==========\n"
+                )
+
+                return {
+                    "success": False,
+                    "user_id": state.user_id,
+                    "image_name": state.image_name,
+                    "error": error_message,
+                }
+
+            # =================================================
             # STEP 2 — RAG RETRIEVAL
             # =================================================
 
@@ -190,17 +207,6 @@ class FatigueWorkflow:
                 query=rag_query,
                 top_k=5,
             )
-
-            # RAGPipeline.search() returns:
-            #
-            # {
-            #     "ids": [...],
-            #     "documents": [...],
-            #     "metadatas": [...],
-            #     "scores": [...]
-            # }
-            #
-            # Therefore use "documents".
 
             state.rag_context = rag_result.get(
                 "documents",
@@ -300,17 +306,12 @@ class FatigueWorkflow:
     ) -> str:
         """
         Convert CV features into a text query for RAG.
-
-        RAGPipeline.search() expects a string query.
-        ImageAnalysisAgent returns a feature dictionary,
-        so the relevant features are converted into a
-        descriptive query.
         """
 
         query_parts = []
 
         # =====================================================
-        # Eye state
+        # EYE STATE
         # =====================================================
 
         eye_state = features.get(
@@ -323,7 +324,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Eye Aspect Ratio
+        # EYE ASPECT RATIO
         # =====================================================
 
         average_ear = features.get(
@@ -336,7 +337,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Eye closure
+        # EYE CLOSURE
         # =====================================================
 
         if features.get(
@@ -362,7 +363,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Possible blink
+        # POSSIBLE BLINK
         # =====================================================
 
         if features.get(
@@ -374,7 +375,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Mouth Aspect Ratio
+        # MOUTH ASPECT RATIO
         # =====================================================
 
         mouth_aspect_ratio = features.get(
@@ -388,7 +389,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Yawning
+        # YAWNING
         # =====================================================
 
         if features.get(
@@ -400,7 +401,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Under-eye darkness
+        # UNDER-EYE DARKNESS
         # =====================================================
 
         darkness = features.get(
@@ -413,7 +414,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Dark circles
+        # DARK CIRCLES
         # =====================================================
 
         if features.get(
@@ -425,7 +426,7 @@ class FatigueWorkflow:
             )
 
         # =====================================================
-        # Fallback query
+        # FALLBACK QUERY
         # =====================================================
 
         if not query_parts:
