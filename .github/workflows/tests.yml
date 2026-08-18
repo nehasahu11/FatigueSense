@@ -24,19 +24,20 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install -r backend/requirements.txt
+        run: | 
+       python -m pip install -r backend/requirements.txt
+       python -m pip install pytest
 
       - name: Run tests
         run: |
-          set +e
-          pytest backend/tests -v
-          status=$?
-          set -e
+            set +e
+            python -m pytest tests -v
+            status=$?
+            set -e
 
-          if [ "$status" -eq 5 ]; then
-            echo "No tests found yet. Skipping test failure."
-            exit 0
-          fi
+            if [ "$status" -eq 5 ]; then
+              echo "No tests found yet. Skipping test failure."
+              exit 0
+            fi
 
-          exit "$status"
+            exit $status
