@@ -32,14 +32,9 @@ jobs:
 
       - name: Run tests
         run: |
-          set +e
-          python -m pytest tests -v
-          status=$?
-          set -e
-
-          if [ "$status" -eq 5 ]; then
-            echo "No tests found yet. Skipping test failure."
+          if [ ! -d "tests" ]; then
+            echo "No tests directory found yet. Skipping tests."
             exit 0
           fi
 
-          exit $status
+          python -m pytest tests -v
