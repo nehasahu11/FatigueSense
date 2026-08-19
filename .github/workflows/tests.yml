@@ -65,9 +65,9 @@ jobs:
       - name: Create MySQL tables
         env:
           PYTHONPATH: backend
+          MYSQL_URL: mysql+pymysql://root:password@127.0.0.1:3306/fatiguesense
         run: |
-          cd backend
-          python scripts/setup_mysql.py
+          python backend/scripts/setup_mysql.py
 
       - name: Run tests
         env:
