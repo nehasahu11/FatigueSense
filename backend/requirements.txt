@@ -1,0 +1,15 @@
+pytest
+flask
+flask-cors
+python-dotenv
+pydantic
+pymysql
+sqlalchemy
+pymongo
+requests
+numpy
+pandas
+scikit-learn
+opencv-python
+Pillow
+sentence-transformers
