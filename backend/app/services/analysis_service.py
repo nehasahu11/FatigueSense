@@ -1,23 +1,15 @@
-import os
+from app.orchestration.graph import run_workflow
 
-from app.orchestration.workflow import (
-    FatigueWorkflow
-)
-
-from app.database.mysql.connection import (
-    SessionLocal
-)
-
-from app.database.mysql.crud import (
-    create_analysis
-)
+from app.database.mysql.connection import SessionLocal
+from app.database.mysql.crud import create_analysis
 
 
 class AnalysisService:
-
-    def __init__(self):
-
-        self.workflow = FatigueWorkflow()
+    """
+    Member D service responsible for running
+    the LangGraph fatigue-analysis workflow
+    and saving the result to MySQL.
+    """
 
     def analyze(
         self,
@@ -26,33 +18,28 @@ class AnalysisService:
         user_id: str = None
     ):
 
-        # --------------------------------
-        # Run Member A + B workflow
-        # --------------------------------
+        # -----------------------------------------
+        # Run LangGraph workflow
+        # -----------------------------------------
 
-        result = self.workflow.run(
+        result = run_workflow(
 
             image_path=image_path,
 
-            user_id=user_id,
+            image_filename=image_filename,
 
-            image_filename=image_filename
+            user_id=user_id
         )
 
-        # --------------------------------
-        # Save result to MySQL
-        # --------------------------------
+        # -----------------------------------------
+        # Save successful result to MySQL
+        # -----------------------------------------
 
-        if (
-            os.getenv(
-                "ENABLE_DATABASE",
-                "true"
-            ).lower() == "true"
-        ):
+        if result.get("status") == "success":
+
+            db = SessionLocal()
 
             try:
-
-                db = SessionLocal()
 
                 create_analysis(
 
@@ -74,9 +61,10 @@ class AnalysisService:
                         "risk_level"
                     ],
 
-                    recommendation=result[
-                        "recommendation"
-                    ],
+                    recommendation=result.get(
+                        "recommendation",
+                        ""
+                    ),
 
                     evidence=result.get(
                         "evidence",
@@ -84,12 +72,14 @@ class AnalysisService:
                     )
                 )
 
-                db.close()
-
             except Exception as e:
 
                 print(
                     f"MySQL save failed: {e}"
                 )
+
+            finally:
+
+                db.close()
 
         return result
