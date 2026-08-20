@@ -17,21 +17,39 @@ from app.database.mysql.models import (
 
 @pytest.fixture
 def db():
-
     Base.metadata.create_all(
         bind=engine
     )
 
     session = SessionLocal()
 
-    try:
+    # Remove old test records before each test
+    session.query(Analysis).filter(
+        Analysis.session_id.in_([
+            "pytest-session",
+            "pytest-read-session"
+        ])
+    ).delete(synchronize_session=False)
 
+    session.commit()
+
+    try:
         yield session
 
     finally:
+        # Roll back any failed transaction first
+        session.rollback()
 
+        # Clean up test records after the test
+        session.query(Analysis).filter(
+            Analysis.session_id.in_([
+                "pytest-session",
+                "pytest-read-session"
+            ])
+        ).delete(synchronize_session=False)
+
+        session.commit()
         session.close()
-
 
 def test_mysql_connection():
 

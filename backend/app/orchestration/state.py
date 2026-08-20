@@ -3,29 +3,33 @@ from typing_extensions import TypedDict
 
 
 class FatigueState(TypedDict, total=False):
+    """
+    Shared state passed between LangGraph nodes.
+    """
+
     session_id: str
     user_id: Optional[str]
 
     image_path: str
     image_filename: str
 
-    # Member A output
+    # Member A
     cv_features: Dict[str, Any]
+    fatigue_analysis: Dict[str, Any]
     fatigue_score: float
     risk_level: str
-    fatigue_analysis: Dict[str, Any]
 
-    # Member B output
-    rag_context: List[Dict[str, Any]]
+    # Member B
+    rag_context: List[Any]
     evidence: List[str]
     rag_recommendation: str
-
-    # Final result
-    recommendation: str
-    final_response: Dict[str, Any]
 
     # Memory
     previous_sessions: List[Dict[str, Any]]
 
-    # Error handling
+    # Final output
+    recommendation: str
+    final_response: Dict[str, Any]
+
+    # Error
     error: Optional[str]
