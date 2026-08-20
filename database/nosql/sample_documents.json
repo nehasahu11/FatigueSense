@@ -1,0 +1,42 @@
+{
+    "users": {
+        "user-001": {
+            "name": "Test User",
+            "created_at": "2026-08-19T10:00:00"
+        }
+    },
+
+    "fatigue_sessions": {
+        "test-session-001": {
+            "user_id": "user-001",
+            "session_id": "test-session-001",
+            "fatigue_score": 25.5,
+            "risk_level": "low",
+            "recommendation": "Maintain healthy sleep habits.",
+            "evidence": [
+                "Low fatigue indicators detected."
+            ],
+            "cv_features": {
+                "eye_aspect_ratio": 0.31,
+                "blink_count": 3,
+                "yawn_probability": 0.12
+            }
+        },
+
+        "test-session-002": {
+            "user_id": "user-001",
+            "session_id": "test-session-002",
+            "fatigue_score": 65.0,
+            "risk_level": "moderate",
+            "recommendation": "Take a short break and get adequate rest.",
+            "evidence": [
+                "Moderate fatigue indicators detected."
+            ],
+            "cv_features": {
+                "eye_aspect_ratio": 0.22,
+                "blink_count": 7,
+                "yawn_probability": 0.58
+            }
+        }
+    }
+}

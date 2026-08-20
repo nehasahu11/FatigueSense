@@ -1,26 +1,46 @@
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List
+from typing import Dict, List, Any
 
 
-@dataclass
-class AnalysisState:
-    user_id: str
+class SessionMemory:
 
-    image_name: Optional[str] = None
-    image_path: Optional[str] = None
+    def __init__(self):
 
-    # Output from ImageAnalysisAgent
-    features: Dict[str, Any] = field(default_factory=dict)
+        self.sessions: Dict[
+            str,
+            List[Dict[str, Any]]
+        ] = {}
 
-    # Output from RAG
-    rag_context: List[str] = field(default_factory=list)
+    def add(
+        self,
+        user_id: str,
+        session: Dict[str, Any]
+    ):
 
-    # Output from FatigueScoringAgent
-    fatigue_score: Optional[float] = None
-    risk_level: Optional[str] = None
+        if not user_id:
+            return
 
-    # Output from RecommendationAgent
-    recommendation: Optional[str] = None
+        if user_id not in self.sessions:
+            self.sessions[user_id] = []
 
-    # Error information
-    error: Optional[str] = None
+        self.sessions[user_id].append(
+            session
+        )
+
+        # Keep only recent sessions
+        self.sessions[user_id] = (
+            self.sessions[user_id][-10:]
+        )
+
+    def get(
+        self,
+        user_id: str,
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+
+        if not user_id:
+            return []
+
+        return self.sessions.get(
+            user_id,
+            []
+        )[-limit:]

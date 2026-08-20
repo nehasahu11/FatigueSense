@@ -51,9 +51,16 @@ PyMuPDF
 
 SQLAlchemy
 PyMySQL
+pymongo
 
 # NoSQL / Firebase
 firebase-admin
+
+# ==============================
+# Data Processing
+# ==============================
+
+pandas
 
 # ==============================
 # HTTP / Utilities
