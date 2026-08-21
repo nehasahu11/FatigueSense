@@ -6,7 +6,7 @@ import { generateMockResult } from './mockData';
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const MOCK_MODE = !API_BASE || API_BASE.trim() === '';
 
-export const MIN_IMAGES = 3;
+export const MIN_IMAGES = 1;
 export const MAX_IMAGES = 4;
 
 export function isMockMode() {
