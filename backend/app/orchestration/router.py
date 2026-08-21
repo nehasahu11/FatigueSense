@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Dict
 
 
@@ -28,13 +29,38 @@ class AgentRouter:
         Load Member A agents.
         """
 
+        # ---------------------------------------------
+        # IMAGE ANALYSIS AGENT
+        # ---------------------------------------------
+
         try:
 
             from app.agents.image_analysis_agent import (
                 ImageAnalysisAgent
             )
 
-            self.image_agent = ImageAnalysisAgent()
+            # router.py is located at:
+            # backend/app/orchestration/router.py
+            #
+            # parents[2] gives:
+            # backend/
+            #
+            # Therefore this points to:
+            # backend/data/models/
+
+            backend_dir = Path(__file__).resolve().parents[2]
+
+            model_directory = (
+                backend_dir / "data" / "models"
+            )
+
+            self.image_agent = ImageAnalysisAgent(
+                model_directory=str(model_directory)
+            )
+
+            print(
+                "ImageAnalysisAgent loaded successfully."
+            )
 
         except Exception as e:
 
@@ -42,6 +68,10 @@ class AgentRouter:
                 f"Warning: ImageAnalysisAgent "
                 f"could not be loaded: {e}"
             )
+
+        # ---------------------------------------------
+        # FATIGUE SCORING AGENT
+        # ---------------------------------------------
 
         try:
 
@@ -51,12 +81,20 @@ class AgentRouter:
 
             self.fatigue_agent = FatigueScoringAgent()
 
+            print(
+                "FatigueScoringAgent loaded successfully."
+            )
+
         except Exception as e:
 
             print(
                 f"Warning: FatigueScoringAgent "
                 f"could not be loaded: {e}"
             )
+
+        # ---------------------------------------------
+        # RECOMMENDATION AGENT
+        # ---------------------------------------------
 
         try:
 
@@ -66,6 +104,10 @@ class AgentRouter:
 
             self.recommendation_agent = (
                 RecommendationAgent()
+            )
+
+            print(
+                "RecommendationAgent loaded successfully."
             )
 
         except Exception as e:
@@ -90,6 +132,10 @@ class AgentRouter:
 
             self.rag_pipeline = RAGPipeline()
 
+            print(
+                "RAGPipeline loaded successfully."
+            )
+
         except Exception as e:
 
             print(
@@ -113,6 +159,7 @@ class AgentRouter:
                 "is not available."
             )
 
+        # Some implementations use run()
         if hasattr(
             self.image_agent,
             "run"
@@ -122,6 +169,8 @@ class AgentRouter:
                 image_path
             )
 
+        # Your current ImageAnalysisAgent
+        # actually uses analyze()
         elif hasattr(
             self.image_agent,
             "analyze"
@@ -260,6 +309,9 @@ class AgentRouter:
         fatigue_data: Dict[str, Any],
         rag_data: Dict[str, Any]
     ) -> str:
+
+        # If RecommendationAgent is unavailable,
+        # use the built-in fallback recommendation.
 
         if self.recommendation_agent is None:
 
