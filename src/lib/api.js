@@ -17,7 +17,7 @@ const MOCK_MODE =
 // IMAGE LIMITS
 // ============================================================
 
-export const MIN_IMAGES = 3;
+export const MIN_IMAGES = 1;
 export const MAX_IMAGES = 4;
 
 
