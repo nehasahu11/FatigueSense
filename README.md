@@ -1,765 +1,1313 @@
 # FatigueSense
 
-## Intelligent AI-Powered Fatigue Analysis Platform
+## 🧠 AI-Powered Facial Fatigue Analysis Platform
 
-FatigueSense is a modular AI application designed to analyze visible
-facial indicators associated with fatigue from uploaded images. It
-combines **Computer Vision, AI Agents, Retrieval-Augmented Generation
-(RAG), LangGraph orchestration, memory, databases, FastAPI, React, and
-Docker-ready deployment** into one integrated platform.
+FatigueSense is an AI-powered fatigue analysis platform that uses computer vision, intelligent agents, Retrieval-Augmented Generation (RAG), memory, and a modern web application stack to analyze facial indicators associated with fatigue.
 
-> **Project status:** Active development and team integration.
+The system accepts facial images, extracts visual features, validates the presence of a human face, retrieves relevant fatigue-related information, calculates a fatigue score, classifies the risk level, and presents the results through a web interface.
 
-------------------------------------------------------------------------
+> **Project Status:** Active development / team integration
 
-## Overview
+---
 
-FatigueSense processes a facial image through a structured analysis
-pipeline. The system validates the input, extracts facial and
-eye-related features, retrieves supporting knowledge from a reference
-corpus, calculates a fatigue score, determines a risk level, generates
-recommendations, and presents the result through a web interface.
+## 📚 Table of Contents
 
-The architecture is modular so that Computer Vision, RAG, frontend,
-orchestration, memory, database, and API components can be developed
-independently and integrated through clearly defined interfaces.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [System Workflow](#system-workflow)
+- [Architecture](#architecture)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Backend](#backend)
+- [Frontend](#frontend)
+- [Computer Vision Pipeline](#computer-vision-pipeline)
+- [RAG Pipeline](#rag-pipeline)
+- [Fatigue Scoring](#fatigue-scoring)
+- [API Endpoints](#api-endpoints)
+- [Installation](#installation)
+- [Environment Configuration](#environment-configuration)
+- [Running the Project](#running-the-project)
+- [Testing](#testing)
+- [Database](#database)
+- [Reference Documents](#reference-documents)
+- [Development Notes](#development-notes)
+- [Future Enhancements](#future-enhancements)
+- [Contributing](#contributing)
+- [License](#license)
 
-### End-to-End Pipeline
+---
 
-``` text
+## 🔎 Overview
+
+Fatigue can affect concentration, reaction time, productivity, and overall performance. FatigueSense provides a software-based approach for analyzing visible facial indicators associated with fatigue.
+
+The platform is designed around a modular architecture so that computer vision, scoring, retrieval, memory, databases, APIs, and frontend components can be developed and maintained independently.
+
+The current analysis workflow is:
+
+```text
 User
   |
   v
-React Frontend
+Frontend
   |
+  | Upload 3-4 facial images
   v
 FastAPI Backend
   |
   v
-LangGraph Orchestration
+FatigueWorkflow
   |
-  +--> Computer Vision / Image Analysis
+  +--> ImageAnalysisAgent
+  |       |
+  |       +--> Human Face Validation
+  |       +--> Facial Feature Extraction
   |
-  +--> Face Validation
+  +--> RAGPipeline
+  |       |
+  |       +--> Retrieve relevant fatigue context
   |
-  +--> RAG Retrieval
+  +--> FatigueScoringAgent
+  |       |
+  |       +--> Calculate fatigue score
+  |       +--> Determine risk level
   |
-  +--> Fatigue Scoring
+  v
+Result Aggregation
   |
+  +--> Fatigue Score
+  +--> Risk Level
+  +--> Signal Breakdown
   +--> Recommendation
-  |
-  +--> Memory / Database
-  |
-  v
-Final Analysis Result
+  +--> Analysis History
   |
   v
-React Dashboard
+Frontend Dashboard
 ```
 
-------------------------------------------------------------------------
+---
 
 ## ✨ Key Features
 
-### Computer Vision
+### 👁️ Facial Fatigue Analysis
 
--   Facial image validation
--   Human face detection
--   Eye-state analysis
--   Eye aspect ratio analysis
--   Blink detection
--   Yawning detection
--   Facial feature extraction
--   Under-eye feature analysis
+- Facial image-based fatigue analysis
+- Human face validation
+- Computer vision feature extraction
+- Eye-state analysis
+- Eye closure detection
+- Eye aspect ratio analysis
+- Blink-related signals
+- Mouth aspect ratio analysis
+- Yawning detection
+- Under-eye darkness analysis
+- Dark-circle detection
 
-### AI Agent Layer
+### 🤖 Intelligent Analysis
 
--   Image analysis agent
--   Fatigue scoring agent
--   Recommendation agent
--   Agent tools for supporting operations
+- Modular agent-based architecture
+- Dedicated image analysis agent
+- Dedicated fatigue scoring agent
+- Orchestration workflow
+- RAG-based contextual retrieval
+- Feature-driven RAG query generation
+- Aggregated analysis across multiple images
 
-### 📚 RAG Pipeline
+### 📊 Results and Recommendations
 
--   PDF, JSON, and TXT document ingestion
--   Document parsing and preprocessing
--   Multiple chunking strategies
--   Embedding generation
--   Vector storage
--   Semantic search
--   BM25 search
--   Hybrid retrieval
--   Reranking
+- Numerical fatigue score
+- Low / Medium / High risk classification
+- Signal-level breakdown
+- Human-readable recommendation
+- Number of successfully analyzed images
+- Per-image analysis information
+- Timestamped analysis results
 
-### LangGraph Orchestration
+### ⚙️ Backend Services
 
--   Shared workflow state
--   Modular graph nodes
--   Conditional routing
--   Agent and pipeline coordination
--   Extensible multi-step workflow
+- FastAPI REST API
+- CORS support
+- File upload handling
+- Image validation
+- Temporary file management
+- In-memory user history
+- API health checks
+- Workflow resource cleanup
 
-### Memory
+### 🖥️ Frontend
 
--   Session memory
--   Long-term memory
--   Memory management
--   Context management
+- React-based web application
+- Vite development environment
+- Responsive dashboard architecture
+- Data visualization using Recharts
+- Modern component-based UI
 
-### Data Storage
+### 📚 Data and Retrieval
 
--   MySQL for structured application data
--   NoSQL storage for document-oriented data
--   CRUD and connection layers
--   Database setup scripts
+- MySQL database integration
+- NoSQL database integration
+- Document processing
+- Vector retrieval infrastructure
+- Embedding support
+- Reference document storage
+- RAG-related preprocessing and retrieval modules
 
-### Web Application
+---
 
--   Image upload
--   Fatigue score display
--   Risk-level display
--   Recommendations
--   Analysis details
--   History
--   Dashboard and charts
+## 🔄 System Workflow
 
-### Engineering
+### 1. Image Upload
 
--   Modular backend architecture
--   Automated tests
--   GitHub workflow support
--   Docker-ready architecture
+The user uploads between 3 and 4 facial images through the frontend.
 
-------------------------------------------------------------------------
+The backend validates:
 
-## 🏗️ System Architecture
+- User ID
+- Number of images
+- File name
+- File extension
+- File content
+- File size
 
-``` text
-+-------------------------------------------------------------+
-|                         FRONTEND                            |
-|                    React + Vite + UI                        |
-|                                                             |
-| Upload | Analysis | Score | Risk | Recommendation | History |
-+-----------------------------+-------------------------------+
-                              |
-                              | REST API
-                              v
-+-------------------------------------------------------------+
-|                         BACKEND                             |
-|                         FastAPI                             |
-+-------------------------------------------------------------+
-|                         API Layer                           |
-| Analyze | Upload | History | Documents | Health             |
-+-------------------------------------------------------------+
-|                    LANGGRAPH LAYER                          |
-|                                                             |
-| State <-> Nodes <-> Router <-> Graph <-> Configuration      |
-+----------------------+----------------------+---------------+
-                       |                      |
-                       v                      v
-                Computer Vision             RAG
-                       |                      |
-                       |               Loaders / Parsers
-                       |               Preprocessing
-                       |               Chunking
-                       |               Embeddings
-                       |               Vector Store
-                       |               Retrieval
-                       |                      |
-                       +----------+-----------+
-                                  |
-                                  v
-                         Fatigue Scoring
-                                  |
-                                  v
-                         Recommendation
-                                  |
-                                  v
-                         Memory / Storage
-                                  |
-                                  v
-                         Final Response
+Supported image formats:
+
+```text
+JPG
+JPEG
+PNG
 ```
 
-------------------------------------------------------------------------
+Maximum image size:
 
-## 🔄 LangGraph Workflow
-
-The orchestration layer is designed around the following workflow:
-
-``` text
-                    +----------------+
-                    |  Input State   |
-                    +-------+--------+
-                            |
-                            v
-                  +-------------------+
-                  | Image Analysis    |
-                  |      Node         |
-                  +---------+---------+
-                            |
-                            v
-                  +-------------------+
-                  | Face Validation   |
-                  +---------+---------+
-                            |
-                   +--------+--------+
-                   |                 |
-                Invalid             Valid
-                   |                 |
-                   v                 v
-                  END        +----------------+
-                             |    RAG Node    |
-                             +-------+--------+
-                                     |
-                                     v
-                             +---------------+
-                             | Fatigue Score |
-                             +-------+-------+
-                                     |
-                                     v
-                             +---------------+
-                             | Recommendation|
-                             +-------+-------+
-                                     |
-                                     v
-                             +---------------+
-                             | Memory / DB   |
-                             +-------+-------+
-                                     |
-                                     v
-                             +---------------+
-                             | Final Result  |
-                             +---------------+
+```text
+10 MB per image
 ```
 
-### Orchestration Modules
+---
 
-  File                   Responsibility
-  ---------------------- --------------------------------------------
-  `state.py`             Shared state passed between graph nodes
-  `nodes.py`             Individual workflow node implementations
-  `graph.py`             Builds and compiles the LangGraph workflow
-  `router.py`            Conditional routing and workflow decisions
-  `workflow_config.py`   Workflow configuration
+### 2. Image Analysis
 
-------------------------------------------------------------------------
+Each image is processed independently by the `ImageAnalysisAgent`.
 
-## RAG Architecture
+The computer vision pipeline extracts facial indicators such as:
 
-``` text
-Reference Documents
-        |
-        v
-     Loaders
-        |
-        v
-     Parsers
-        |
-        v
-  Preprocessing
-        |
-        v
-    Chunking
-        |
-        v
-   Embeddings
-        |
-        v
-  Vector Store
-        |
-        v
-    Retrieval
-     /    |    \
-Semantic BM25 Hybrid
-        |
-        v
-     Reranker
-        |
-        v
-Relevant Context
-        |
-        v
-LangGraph Workflow
+- Face presence
+- Eye state
+- Eye aspect ratio
+- Eye closure
+- Blink-related indicators
+- Mouth aspect ratio
+- Yawning
+- Under-eye darkness
+- Dark circles
+
+If no human face is detected, the workflow stops for that image and returns a validation error.
+
+---
+
+### 3. RAG Retrieval
+
+The extracted computer vision features are converted into a text-based query.
+
+For example:
+
+```text
+fatigue assessment eye state closed
+eye aspect ratio 0.18
+both eyes closed
+yawning fatigue
+under eye darkness
 ```
 
-Reference documents are organized under:
+The query is passed to the `RAGPipeline`, which retrieves relevant documents from the project's fatigue-related knowledge base.
 
-``` text
-backend/data/reference_documents/
-├── pdf/
-├── json/
-└── txt/
+The retrieved context can be used as supporting information for the analysis pipeline.
+
+---
+
+### 4. Fatigue Scoring
+
+The `FatigueScoringAgent` processes the extracted features and calculates a fatigue score.
+
+The score is converted into a risk category:
+
+```text
+0 - 33   -> Low
+34 - 66  -> Medium
+67 - 100 -> High
 ```
 
-Generated chunks and embeddings are kept separately:
+The scoring pipeline also exposes component-level contributions used to create the frontend signal breakdown.
 
-``` text
-backend/data/chunks/
-backend/data/embeddings/
+---
+
+### 5. Multi-Image Aggregation
+
+When multiple images are uploaded, each image is analyzed independently.
+
+The final fatigue score is calculated using the average of all successfully analyzed image scores.
+
+```text
+Final Score =
+    Sum of Successful Image Scores
+    -------------------------------
+       Number of Successful Images
 ```
 
-------------------------------------------------------------------------
+The aggregated result contains:
 
-## 🗂️ Project Structure
+- Final fatigue score
+- Risk level
+- Recommendation
+- Signal breakdown
+- Images analyzed
+- Image names
+- Individual image analyses
+- Timestamp
 
-``` text
-FatigueSense/
-|
-├── README.md
-├── .gitignore
-├── .env
-├── .env.example
-|
-├── backend/
-|   ├── requirements.txt
-|   ├── run.py
-|   |
-|   ├── app/
-|   |   ├── __init__.py
-|   |   ├── main.py
-|   |   |
-|   |   ├── agents/                    # Member A
-|   |   |   ├── image_analysis_agent.py
-|   |   |   ├── fatigue_scoring_agent.py
-|   |   |   ├── recommendation_agent.py
-|   |   |   └── agent_tools.py
-|   |   |
-|   |   ├── cv/                        # Member A
-|   |   |   ├── face_detection.py
-|   |   |   ├── eye_analysis.py
-|   |   |   ├── blink_detection.py
-|   |   |   ├── yawn_detection.py
-|   |   |   ├── facial_features.py
-|   |   |   └── feature_extraction.py
-|   |   |
-|   |   ├── preprocessing/             # Member A
-|   |   |   ├── format_detector.py
-|   |   |   ├── format_normalizer.py
-|   |   |   ├── image_validator.py
-|   |   |   └── image_preprocessor.py
-|   |   |
-|   |   ├── rag/                       # Member B
-|   |   |   ├── loaders/
-|   |   |   ├── parsers/
-|   |   |   ├── preprocessing/
-|   |   |   ├── chunking/
-|   |   |   ├── embeddings/
-|   |   |   ├── vector_store/
-|   |   |   ├── retrieval/
-|   |   |   ├── rag_agent_tool.py
-|   |   |   └── pipeline.py
-|   |   |
-|   |   ├── orchestration/             # Member D - LangGraph
-|   |   |   ├── state.py
-|   |   |   ├── nodes.py
-|   |   |   ├── graph.py
-|   |   |   ├── router.py
-|   |   |   └── workflow_config.py
-|   |   |
-|   |   ├── memory/                    # Member D
-|   |   |   ├── session_memory.py
-|   |   |   ├── long_term_memory.py
-|   |   |   ├── memory_manager.py
-|   |   |   └── context_manager.py
-|   |   |
-|   |   ├── database/                  # Member D
-|   |   |   ├── mysql/
-|   |   |   └── nosql/
-|   |   |
-|   |   ├── api/                       # Member D
-|   |   |   ├── dependencies.py
-|   |   |   └── routes/
-|   |   |
-|   |   ├── schemas/
-|   |   ├── services/                  # Member D
-|   |   └── utils/
-|   |
-|   ├── tests/
-|   ├── data/
-|   |   ├── test_images/
-|   |   ├── reference_documents/
-|   |   ├── chunks/
-|   |   └── embeddings/
-|   |
-|   └── scripts/
-|
-├── frontend/                          # Member C
-|   ├── package.json
-|   ├── vite.config.js
-|   ├── public/
-|   └── src/
-|       ├── components/
-|       ├── pages/
-|       ├── services/
-|       ├── hooks/
-|       ├── utils/
-|       ├── App.jsx
-|       ├── main.jsx
-|       └── index.css
-|
-├── database/                           # Member D
-|   ├── mysql/
-|   └── nosql/
-|
-├── docs/                               # All Members
-|   ├── architecture/
-|   ├── project_report/
-|   └── api/
-|
-├── docker/
-|   ├── Dockerfile.backend
-|   ├── Dockerfile.frontend
-|   └── docker-compose.yml
-|
-└── .github/
-    └── workflows/
-        └── tests.yml
+---
+
+### 6. Result Presentation
+
+The frontend receives the aggregated response and displays the analysis through the dashboard.
+
+The UI can present:
+
+- Overall fatigue score
+- Risk level
+- Signal breakdown
+- Recommendations
+- Analysis history
+- Individual analysis information
+- Visual charts
+
+---
+
+## 🏗️ Architecture
+
+FatigueSense follows a modular layered architecture.
+
+```text
++--------------------------------------------------+
+|                  React Frontend                  |
+|       Dashboard / Upload / History / UI          |
++--------------------------+-----------------------+
+                           |
+                           | REST API
+                           v
++--------------------------------------------------+
+|                    FastAPI                       |
+|       Routes / Validation / API Responses        |
++--------------------------+-----------------------+
+                           |
+                           v
++--------------------------------------------------+
+|              Application Services                |
+|     Analysis / Upload / History / Recommendation |
++--------------------------+-----------------------+
+                           |
+                           v
++--------------------------------------------------+
+|                 Orchestration                    |
+|        FatigueWorkflow / Agent Routing           |
++-------------+-------------------+----------------+
+              |                   |
+              v                   v
++------------------------+   +---------------------+
+| Computer Vision Agents |   |     RAG Pipeline    |
+| Image Analysis Agent   |   | Load / Parse /      |
+| Fatigue Scoring Agent  |   | Embed / Retrieve    |
++------------+-----------+   +----------+----------+
+             |                          |
+             +-------------+------------+
+                           |
+                           v
++--------------------------------------------------+
+|             Memory / Database Layer              |
+|       MySQL / NoSQL / Session / Long-Term        |
++--------------------------------------------------+
 ```
 
-------------------------------------------------------------------------
-
-## 👥 Team Responsibilities
-
-  -----------------------------------------------------------------------
-  Member                  Primary Responsibility  Main Modules
-  ----------------------- ----------------------- -----------------------
-  **A**                   Computer Vision and     `agents/`, `cv/`,
-                          image analysis          `preprocessing/`
-
-  **B**                   RAG and knowledge       `rag/`, document
-                          retrieval               ingestion, embeddings,
-                                                  retrieval
-
-  **C**                   Frontend and user       `frontend/`
-                          interface               
-
-  **D**                   LangGraph orchestration `orchestration/`,
-                          and backend integration `memory/`, `database/`,
-                                                  `api/`, `services/`
-
-  **All**                 Testing and             `tests/`, `docs/`
-                          documentation           
-  -----------------------------------------------------------------------
-
-This ownership model keeps the major components independent while
-defining clear integration points between them.
-
-------------------------------------------------------------------------
+---
 
 ## 🛠️ Technology Stack
 
-  Layer                 Technology
-  --------------------- ----------------------------------------
-  Frontend              React
-  Build Tool            Vite
-  Styling               Tailwind CSS
-  Charts                Recharts
-  Icons                 Lucide React
-  Backend               Python
-  API                   FastAPI
-  Computer Vision       Python CV / facial-analysis components
-  AI Agents             Modular agent architecture
-  Orchestration         LangGraph
-  RAG                   Modular custom RAG pipeline
-  Vector Store          Chroma-compatible architecture
-  Structured Database   MySQL
-  NoSQL                 NoSQL database layer
-  Testing               Pytest
-  Containerization      Docker / Docker Compose
-  Version Control       Git / GitHub
+### 🖥️ Frontend
 
-------------------------------------------------------------------------
+| Technology | Purpose |
+|---|---|
+| React | User interface |
+| Vite | Frontend development and build tooling |
+| Recharts | Data visualization |
+| Lucide React | UI icons |
+| Tailwind CSS | Styling |
+| JavaScript / TypeScript tooling | Frontend development |
 
-## Getting Started
+### 🔧 Backend
 
-### 📋 Prerequisites
+| Technology | Purpose |
+|---|---|
+| Python | Backend development |
+| FastAPI | REST API framework |
+| Uvicorn | ASGI server |
+| Pydantic | Data validation and configuration |
+| Python Multipart | File upload handling |
+| Python-dotenv | Environment configuration |
 
-Install:
+### Computer Vision and Machine Learning
 
--   Python 3.10+
--   Node.js 18+
--   npm
--   Git
--   MySQL
--   Required NoSQL service/database
--   Docker and Docker Compose (optional)
+| Technology | Purpose |
+|---|---|
+| OpenCV | Image processing |
+| MediaPipe | Facial landmark / vision processing |
+| NumPy | Numerical computation |
+| SciPy | Scientific computation |
+| Pillow | Image handling |
+| scikit-learn | Machine learning utilities |
+| PyTorch | ML / deep learning support |
+| Transformers | Transformer-based ML support |
+| Sentence Transformers | Text embeddings |
 
-### 1. Clone the Repository
+### RAG and Retrieval
 
-``` bash
-git clone https://github.com/nehasahu11/FatigueSense.git
+| Technology | Purpose |
+|---|---|
+| ChromaDB | Vector storage / retrieval |
+| Rank-BM25 | Keyword-based retrieval |
+| PyPDF | PDF processing |
+| PyMuPDF | PDF/document processing |
+| Sentence Transformers | Embedding generation |
+
+### 🗄️ Database
+
+| Technology | Purpose |
+|---|---|
+| MySQL | Relational data storage |
+| SQLAlchemy | Database ORM |
+| PyMySQL | MySQL connectivity |
+| Firebase Admin | Firebase integration |
+| NoSQL components | Document-oriented storage |
+
+### 🧪 Testing
+
+| Technology | Purpose |
+|---|---|
+| pytest | Python testing |
+| pytest-asyncio | Async testing |
+| HTTPX | API testing |
+
+---
+
+## 📁 Project Structure
+
+```text
+FatigueSense/
+|
++-- backend/
+|   |
+|   +-- app/
+|   |   |
+|   |   +-- agents/
+|   |   |   +-- image_analysis_agent.py
+|   |   |   +-- fatigue_scoring_agent.py
+|   |   |
+|   |   +-- api/
+|   |   |   +-- __init__.py
+|   |   |   +-- dependencies.py
+|   |   |   +-- routes/
+|   |   |       +-- analyze.py
+|   |   |       +-- documents.py
+|   |   |       +-- health.py
+|   |   |       +-- history.py
+|   |   |       +-- upload.py
+|   |   |
+|   |   +-- cv/
+|   |   |   +-- Facial analysis modules
+|   |   |
+|   |   +-- database/
+|   |   |   +-- mysql/
+|   |   |   +-- nosql/
+|   |   |
+|   |   +-- memory/
+|   |   |   +-- context_manager.py
+|   |   |   +-- long_term_memory.py
+|   |   |   +-- memory_manager.py
+|   |   |   +-- session_memory.py
+|   |   |
+|   |   +-- orchestration/
+|   |   |   +-- agent_router.py
+|   |   |   +-- state.py
+|   |   |   +-- workflow.py
+|   |   |   +-- workflow_config.py
+|   |   |
+|   |   +-- preprocessing/
+|   |   |
+|   |   +-- rag/
+|   |   |   +-- chunking/
+|   |   |   +-- embeddings/
+|   |   |   +-- loaders/
+|   |   |   +-- parsers/
+|   |   |   +-- preprocessing/
+|   |   |   +-- retrieval/
+|   |   |   +-- vector_store/
+|   |   |
+|   |   +-- schemas/
+|   |   +-- services/
+|   |   +-- utils/
+|   |
+|   +-- data/
+|   |   +-- chunks/
+|   |   +-- embeddings/
+|   |   +-- models/
+|   |   +-- reference_documents/
+|   |   |   +-- json/
+|   |   |   +-- pdf/
+|   |   |   +-- txt/
+|   |   +-- test_images/
+|   |
+|   +-- scripts/
+|   +-- tests/
+|   +-- requirements.txt
+|   +-- run.py
+|
++-- database/
+|   |
+|   +-- mysql/
+|   |   +-- schema.sql
+|   |   +-- tables.sql
+|   |   +-- indexes.sql
+|   |   +-- seed.sql
+|   |
+|   +-- nosql/
+|
++-- frontend/
+|   +-- src/
+|   +-- public/
+|   +-- package.json
+|   +-- vite.config.*
+|
++-- .github/
+|   +-- workflows/
+|
++-- README.md
+```
+
+> Generated `__pycache__` directories and compiled Python files are intentionally excluded from the project structure above.
+
+---
+
+## 🔧 Backend
+
+The backend is implemented using FastAPI and provides the application API layer.
+
+### Main Backend Responsibilities
+
+- Accept image uploads
+- Validate requests
+- Execute the fatigue-analysis workflow
+- Coordinate AI agents
+- Execute RAG retrieval
+- Aggregate multiple image results
+- Generate recommendations
+- Maintain analysis history
+- Provide health checks
+- Handle temporary uploaded files
+- Manage workflow resources
+
+### Main Workflow Class
+
+The primary orchestration class is:
+
+```python
+FatigueWorkflow
+```
+
+Located at:
+
+```text
+backend/app/orchestration/workflow.py
+```
+
+The workflow coordinates:
+
+```text
+ImageAnalysisAgent
+        |
+        v
+Face Validation
+        |
+        v
+RAGPipeline
+        |
+        v
+FatigueScoringAgent
+        |
+        v
+Final Analysis Result
+```
+
+---
+
+## 🖥️ Frontend
+
+The frontend is a React + Vite application.
+
+The frontend communicates with the FastAPI backend using HTTP requests.
+
+The frontend package includes:
+
+- React
+- React DOM
+- Vite
+- Recharts
+- Lucide React
+- Tailwind CSS
+- ESLint
+- TypeScript tooling
+
+### 🖥️ Frontend Commands
+
+Install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Start development server:
+
+```bash
+npm run dev
+```
+
+Create production build:
+
+```bash
+npm run build
+```
+
+Preview production build:
+
+```bash
+npm run preview
+```
+
+Run linting:
+
+```bash
+npm run lint
+```
+
+---
+
+## 👁️ Computer Vision Pipeline
+
+The computer vision layer is responsible for extracting visual signals from facial images.
+
+### Eye Analysis
+
+The system can use eye-related measurements such as:
+
+- Eye state
+- Average eye aspect ratio
+- Left eye closure
+- Right eye closure
+- Both-eye closure
+- Possible blink
+
+### Mouth Analysis
+
+The system can analyze:
+
+- Mouth aspect ratio
+- Mouth opening
+- Yawn detection
+
+### Under-Eye Analysis
+
+The pipeline can analyze:
+
+- Under-eye darkness
+- Dark-circle presence
+- Average under-eye darkness
+
+These signals are passed into the fatigue scoring process.
+
+---
+
+## 📖 RAG Pipeline
+
+FatigueSense includes a Retrieval-Augmented Generation infrastructure for retrieving relevant information from reference material.
+
+The RAG subsystem contains modules for:
+
+```text
+Document Loading
+       |
+       v
+Parsing
+       |
+       v
+Preprocessing
+       |
+       v
+Chunking
+       |
+       v
+Embeddings
+       |
+       v
+Vector Store
+       |
+       v
+Retrieval
+```
+
+Reference documents can be organized under:
+
+```text
+backend/data/reference_documents/
+```
+
+Supported document categories include:
+
+```text
+PDF
+TXT
+JSON
+```
+
+The workflow generates a query from extracted facial features and sends it to the RAG pipeline.
+
+---
+
+## 📈 Fatigue Scoring
+
+The fatigue scoring layer converts extracted facial signals into a fatigue score.
+
+The resulting score is categorized into three risk levels:
+
+| Score | Risk Level |
+|---:|---|
+| 0-33 | Low |
+| 34-66 | Medium |
+| 67-100 | High |
+
+The scoring components can contribute to the frontend signal breakdown.
+
+The API can expose signals such as:
+
+- Eye Closure
+- Eye State
+- Blink / Eye Closure
+- Yawn
+- Under-Eye Darkness
+
+The score should be interpreted as a software-generated indicator rather than a medical diagnosis.
+
+---
+
+## 🔌 API Endpoints
+
+The backend exposes REST endpoints for application functionality.
+
+### Root
+
+```http
+GET /
+```
+
+Returns basic API information.
+
+### Health Check
+
+```http
+GET /health
+```
+
+Returns the service health status.
+
+### Analyze
+
+```http
+POST /analyze
+```
+
+Accepts:
+
+- `user_id`
+- 3-4 image files
+
+Example request structure:
+
+```text
+multipart/form-data
+
+user_id: user123
+images: image1.jpg
+images: image2.jpg
+images: image3.jpg
+```
+
+### History
+
+```http
+GET /history?user_id=user123
+```
+
+Returns the latest analysis history for the requested user.
+
+### API Documentation
+
+When the backend is running, FastAPI automatically provides:
+
+```text
+/docs
+/redoc
+```
+
+---
+
+## 🚀 Installation
+
+### Prerequisites
+
+Install the following before running the project:
+
+- Python 3.10+
+- Node.js and npm
+- Git
+- MySQL, if database functionality is enabled
+- Required computer vision model files
+
+---
+
+## 📥 Clone the Repository
+
+```bash
+git clone <repository-url>
 cd FatigueSense
 ```
 
-### 2. Backend Setup
+---
 
-Windows PowerShell:
+## 🔧 Backend Setup
 
-``` powershell
+Create and activate a virtual environment.
+
+### Windows PowerShell
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-cd backend
-pip install -r requirements.txt
-cd ..
 ```
 
-### 3. Environment Configuration
+If PowerShell execution policy prevents activation:
 
-Create the environment file:
-
-``` powershell
-Copy-Item .env.example .env
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\.venv\Scripts\Activate.ps1
 ```
 
-Then configure the required database, model, API, and RAG settings.
+Install backend dependencies:
 
-Never commit real secrets to GitHub.
-
-### 4. Database Setup
-
-Use the SQL files under:
-
-``` text
-database/mysql/
+```powershell
+pip install -r backend\requirements.txt
 ```
 
-If the setup script is configured for the project:
+---
 
-``` powershell
-python backend/scripts/setup_mysql.py
+## 🔐 Environment Configuration
+
+Create an environment file as required by the project configuration.
+
+Example:
+
+```env
+# Application
+APP_ENV=development
+
+# Database
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=fatiguesense
+
+# NoSQL / Firebase
+# Add credentials required by the enabled integration.
+
+# RAG
+# Add model/vector-store configuration required by the deployment.
 ```
 
-Configure the NoSQL service according to the environment configuration.
+Do not commit secrets, API keys, passwords, private credentials, or service-account files to Git.
 
-### 5. Run the Backend
+---
+
+## 🧩 Required Model Files
+
+The workflow expects the model directory at:
+
+```text
+backend/data/models/
+```
+
+The directory must exist before the workflow is initialized.
+
+If the required MediaPipe or other model files are missing, the backend workflow may fail during startup or image analysis.
+
+---
+
+## ▶️ Running the Backend
 
 From the project root:
 
-``` powershell
-python -m uvicorn backend.app.main:app --reload
+```powershell
+.\.venv\Scripts\Activate.ps1
+uvicorn backend.app.main:app --reload
 ```
 
-Backend:
+Depending on the final backend entry point configured in the repository, the project can also be started using:
 
-``` text
+```powershell
+python backend/run.py
+```
+
+The API is normally available at:
+
+```text
 http://127.0.0.1:8000
 ```
 
-Swagger API documentation:
+FastAPI documentation:
 
-``` text
+```text
 http://127.0.0.1:8000/docs
 ```
 
-### 6. Run the Frontend
+---
+
+## ▶️ Running the Frontend
 
 Open another terminal:
 
-``` powershell
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-Open the URL displayed by Vite.
+Vite will display the local frontend URL in the terminal.
 
-------------------------------------------------------------------------
+The frontend communicates with the backend API according to the configured API base URL.
 
-## Docker
+---
 
-The repository is structured for containerized deployment:
+## 🚀 Running the Complete Project
 
-``` text
-docker/
-├── Dockerfile.backend
-├── Dockerfile.frontend
-└── docker-compose.yml
+Open two terminals.
+
+### Terminal 1 - Backend
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+uvicorn backend.app.main:app --reload
 ```
 
-After the Docker configuration is completed:
+### Terminal 2 - Frontend
 
-``` bash
-docker compose up --build
+```powershell
+cd frontend
+npm run dev
 ```
 
-------------------------------------------------------------------------
+Then open the frontend URL shown by Vite.
+
+---
 
 ## 🧪 Testing
 
-Run backend tests:
+Backend tests use `pytest`.
 
-``` bash
+Run all tests:
+
+```powershell
 pytest
 ```
 
-Before committing changes, also verify:
+Run tests from the backend directory if required:
 
-``` bash
-git status
-```
-
-For the frontend:
-
-``` bash
-cd frontend
-npm run lint
-npm run build
-```
-
-------------------------------------------------------------------------
-
-## 🔌 API Endpoints
-
-The backend is organized around the following route groups:
-
-``` text
-/api/analyze
-/api/upload
-/api/history
-/api/documents
-/api/health
-```
-
-Interactive API documentation is available through FastAPI at:
-
-``` text
-/docs
-```
-
-when the backend is running.
-
-------------------------------------------------------------------------
-
-## 🌿 Development Workflow
-
-Create a feature branch:
-
-``` bash
-git checkout -b feature/<feature-name>
-```
-
-Use descriptive commits:
-
-``` text
-feat: add eye closure analysis
-feat: integrate RAG retrieval
-feat: add LangGraph workflow node
-fix: resolve image validation issue
-test: add workflow tests
-docs: update README
-```
-
-Before pushing:
-
-``` bash
-git status
+```powershell
+cd backend
 pytest
+```
+
+For asynchronous tests:
+
+```powershell
+pytest -v
+```
+
+The repository also contains GitHub Actions workflow configuration for automated testing.
+
+---
+
+## 🗄️ Database
+
+FatigueSense contains database infrastructure for both relational and document-oriented storage.
+
+### MySQL
+
+Database scripts are located at:
+
+```text
+database/mysql/
+```
+
+Typical files include:
+
+```text
+schema.sql
+tables.sql
+indexes.sql
+seed.sql
+```
+
+The backend database layer is located at:
+
+```text
+backend/app/database/mysql/
+```
+
+It contains database connection, model, and CRUD functionality.
+
+### NoSQL
+
+NoSQL infrastructure is located at:
+
+```text
+backend/app/database/nosql/
+```
+
+and:
+
+```text
+database/nosql/
+```
+
+The NoSQL layer supports document-oriented data structures used by the application architecture.
+
+---
+
+## 🧠 Memory System
+
+FatigueSense includes a modular memory layer:
+
+```text
+backend/app/memory/
+```
+
+The memory subsystem contains components for:
+
+- Session memory
+- Long-term memory
+- Context management
+- Memory management
+
+This architecture allows user-related analysis context to be managed separately from the core computer vision pipeline.
+
+---
+
+## 🗂️ Data Organization
+
+Application data is organized under:
+
+```text
+backend/data/
+```
+
+### Chunks
+
+```text
+backend/data/chunks/
+```
+
+Stores processed document chunks used by the retrieval pipeline.
+
+### Embeddings
+
+```text
+backend/data/embeddings/
+```
+
+Stores embedding-related data generated for retrieval.
+
+### Models
+
+```text
+backend/data/models/
+```
+
+Stores required model files.
+
+### Reference Documents
+
+```text
+backend/data/reference_documents/
+```
+
+Contains source material for the RAG pipeline.
+
+### Test Images
+
+```text
+backend/data/test_images/
+```
+
+Contains images used during development and testing.
+
+---
+
+## 🛡️ Error Handling
+
+The backend validates uploaded images before analysis.
+
+Validation includes:
+
+- Missing user ID
+- Incorrect number of images
+- Missing filenames
+- Unsupported file extensions
+- Empty files
+- Files larger than 10 MB
+- Images without a detectable human face
+- Workflow analysis failures
+
+Temporary uploaded files are removed after processing.
+
+---
+
+## 🔒 Security Considerations
+
+The application includes several basic protections:
+
+- Filename sanitization
+- File extension validation
+- File size limits
+- Temporary upload cleanup
+- CORS configuration
+- Environment-based configuration
+- Separation of application and database layers
+
+For production deployment, additional security controls should be added, including:
+
+- Authentication and authorization
+- Rate limiting
+- Secure production CORS configuration
+- HTTPS
+- Request validation
+- Secure secret management
+- Database access controls
+- Production logging and monitoring
+
+---
+
+## 🔏 Privacy Considerations
+
+FatigueSense processes facial images, which can be sensitive data.
+
+For production use:
+
+- Do not store facial images longer than necessary.
+- Use secure transport.
+- Protect stored analysis data.
+- Avoid committing user images to Git.
+- Restrict access to uploaded data.
+- Clearly communicate how analysis data is processed.
+- Follow applicable privacy and data-protection requirements.
+
+The current workflow removes temporary uploaded image files after analysis.
+
+---
+
+## 👨‍💻 Development Notes
+
+The repository is structured to support team-based development.
+
+Major application areas are separated into:
+
+```text
+agents
+api
+cv
+database
+memory
+orchestration
+preprocessing
+rag
+schemas
+services
+utils
+```
+
+This separation allows individual components to evolve without placing all application logic in a single file.
+
+The orchestration layer acts as the central coordinator between image analysis, retrieval, scoring, and final result generation.
+
+---
+
+## 🔮 Future Enhancements
+
+Potential future improvements include:
+
+- Real-time webcam fatigue monitoring
+- Video-based fatigue analysis
+- Temporal fatigue tracking
+- Improved personalization
+- More advanced fatigue scoring models
+- Expanded RAG knowledge base
+- Better retrieval evaluation
+- Persistent user history
+- Authentication and authorization
+- Advanced analytics dashboard
+- Notification and alert system
+- Model performance monitoring
+- Cloud deployment
+- Containerized deployment using Docker
+- Production-grade observability
+- Automated model evaluation
+
+---
+
+## 👥 Team Development
+
+For team development, use feature branches rather than committing directly to the main integration branch.
+
+Recommended workflow:
+
+```bash
+git checkout team-integration
+git pull origin team-integration
+
+git checkout -b feature/your-feature
+
+# Make changes
+
 git add .
-git commit -m "describe the change"
-git push
+git commit -m "Add your feature"
+
+git push origin feature/your-feature
 ```
 
-For team integration, use pull requests rather than directly overwriting
-another member's work.
+Create a Pull Request and merge the feature after review.
 
-------------------------------------------------------------------------
+Before pushing an integration branch:
 
-## Security
-
-Do not commit:
-
-``` text
-.env
-API keys
-Database passwords
-Private credentials
-Sensitive datasets
-Private model files
+```bash
+git status
+git pull origin team-integration
 ```
 
-Use `.env.example` to document required environment variables without
-exposing their values.
+Resolve conflicts carefully if Git reports unmerged paths.
 
-------------------------------------------------------------------------
+---
 
-## ⚖️ Limitations and Responsible Use
+## 🩺 Troubleshooting
 
-FatigueSense is an educational/research-oriented software project.
+### 🔧 Backend does not start
 
-The system analyzes visible facial indicators and produces an
-algorithmic fatigue assessment. **It is not a medical diagnostic system
-and should not be used as a substitute for professional medical
-evaluation.**
+Check:
 
-Lighting, camera quality, facial expression, image angle, individual
-differences, and other environmental factors can affect computer-vision
-results.
-
-------------------------------------------------------------------------
-
-## 🚀 Future Enhancements
-
-Planned or potential improvements include:
-
--   Real-time video-based fatigue monitoring
--   Temporal analysis across multiple frames
--   Improved fatigue prediction models
--   More personalized recommendations
--   Larger and more diverse knowledge bases
--   Advanced memory and user-history capabilities
--   Model evaluation and benchmarking
--   Cloud deployment
--   Production monitoring and observability
--   Scalable containerized deployment
--   Stronger authentication and authorization
-
-------------------------------------------------------------------------
-
-## Project Objectives
-
-FatigueSense aims to:
-
-1.  Detect observable facial indicators associated with fatigue.
-2.  Extract meaningful Computer Vision features.
-3.  Combine visual analysis with knowledge retrieval.
-4.  Coordinate multiple AI components through a graph-based workflow.
-5.  Maintain useful analysis context and history.
-6.  Present results through a modern web interface.
-7.  Provide a modular architecture that can be extended and deployed.
-
-------------------------------------------------------------------------
-
-## Repository
-
-**FatigueSense**
-
-GitHub: https://github.com/nehasahu11/FatigueSense
-
-------------------------------------------------------------------------
-
-## Project Summary
-
-``` text
-Computer Vision
-       +
-AI Agents
-       +
-RAG
-       +
-LangGraph
-       +
-Memory
-       +
-FastAPI
-       +
-React
-       +
-Databases
-       +
-Docker
-       =
-FatigueSense
+```bash
+python --version
+pip --version
 ```
 
-**Built as a collaborative AI engineering project.**
+Then reinstall dependencies:
+
+```powershell
+pip install -r backend\requirements.txt
+```
+
+Verify that the model directory exists:
+
+```text
+backend/data/models/
+```
+
+---
+
+### 🖥️ Frontend does not start
+
+Run:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+If dependencies are corrupted, remove `node_modules` and reinstall:
+
+```powershell
+Remove-Item -Recurse -Force node_modules
+npm install
+```
+
+---
+
+### API is running but frontend cannot connect
+
+Verify that the backend is running and check:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Then verify the frontend API base URL and CORS configuration.
+
+---
+
+### Image upload fails
+
+Verify:
+
+- 3-4 images are selected
+- Images are JPG, JPEG, or PNG
+- Each image is below 10 MB
+- Files contain a visible human face
+- Backend is running
+- Required computer vision model files are available
+
+---
+
+### RAG retrieval fails
+
+Check:
+
+- Reference documents are available
+- Required embedding models are installed
+- Vector-store configuration is correct
+- Required data directories exist
+
+---
+
+## 📄 License
+
+This project is developed as an academic/team software project.
+
+Add the project's final license here before public distribution.
+
+---
+
+## 📌 Project Summary
+
+FatigueSense brings together computer vision, AI agents, retrieval, memory, backend services, databases, and a modern React interface into a modular fatigue-analysis platform.
+
+The system is designed to transform facial indicators into an interpretable fatigue assessment while maintaining a clear separation between image processing, intelligent analysis, retrieval, scoring, API services, and presentation.
+
+---
+
+**FatigueSense**  
+**🧠 AI-Powered Facial Fatigue Analysis Platform**
