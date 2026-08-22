@@ -1,6 +1,6 @@
 import json
 
-from app.database.mysql.models import Analysis
+from backend.app.database.mysql.models import Analysis
 
 
 def create_analysis(

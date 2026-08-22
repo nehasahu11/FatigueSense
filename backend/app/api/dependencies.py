@@ -1,12 +1,12 @@
-from app.services.analysis_service import (
+from backend.app.services.analysis_service import (
     AnalysisService
 )
 
-from app.services.upload_service import (
+from backend.app.services.upload_service import (
     UploadService
 )
 
-from app.services.history_service import (
+from backend.app.services.history_service import (
     HistoryService
 )
 

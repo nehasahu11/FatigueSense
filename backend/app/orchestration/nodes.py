@@ -1,9 +1,9 @@
 from typing import Any, Dict
 from uuid import uuid4
 
-from app.orchestration.state import FatigueState
-from app.orchestration.router import AgentRouter
-from app.orchestration.workflow_config import (
+from backend.app.orchestration.state import FatigueState
+from backend.app.orchestration.router import AgentRouter
+from backend.app.orchestration.workflow_config import (
     WorkflowConfig
 )
 
@@ -84,7 +84,7 @@ def load_memory(
 
     try:
 
-        from app.memory.memory_manager import (
+        from backend.app.memory.memory_manager import (
             MemoryManager
         )
 
@@ -459,7 +459,7 @@ def save_memory_node(
 
     try:
 
-        from app.memory.memory_manager import (
+        from backend.app.memory.memory_manager import (
             MemoryManager
         )
 

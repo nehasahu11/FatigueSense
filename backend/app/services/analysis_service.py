@@ -1,7 +1,7 @@
-from app.orchestration.graph import run_workflow
+from backend.app.orchestration.graph import run_workflow
 
-from app.database.mysql.connection import SessionLocal
-from app.database.mysql.crud import create_analysis
+from backend.app.database.mysql.connection import SessionLocal
+from backend.app.database.mysql.crud import create_analysis
 
 
 class AnalysisService:

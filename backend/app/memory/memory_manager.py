@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app.memory.session_memory import SessionMemory
-from app.memory.long_term_memory import LongTermMemory
+from backend.app.memory.session_memory import SessionMemory
+from backend.app.memory.long_term_memory import LongTermMemory
 
 
 class MemoryManager:

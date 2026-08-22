@@ -4,12 +4,12 @@ import pytest
 
 from sqlalchemy import text
 
-from app.database.mysql.connection import (
+from backend.app.database.mysql.connection import (
     engine,
     SessionLocal
 )
 
-from app.database.mysql.models import (
+from backend.app.database.mysql.models import (
     Base,
     Analysis
 )

@@ -7,16 +7,16 @@ from fastapi import (
     Form
 )
 
-from app.api.dependencies import (
+from backend.app.api.dependencies import (
     get_analysis_service,
     get_upload_service
 )
 
-from app.services.analysis_service import (
+from backend.app.services.analysis_service import (
     AnalysisService
 )
 
-from app.services.upload_service import (
+from backend.app.services.upload_service import (
     UploadService
 )
 
@@ -84,3 +84,4 @@ async def analyze_image(
             status_code=500,
             detail=str(e)
         )
+

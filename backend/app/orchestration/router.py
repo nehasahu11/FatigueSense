@@ -14,7 +14,6 @@ class AgentRouter:
 
         self.image_agent = None
         self.fatigue_agent = None
-        self.recommendation_agent = None
         self.rag_pipeline = None
 
         self._load_member_a()
@@ -35,7 +34,7 @@ class AgentRouter:
 
         try:
 
-            from app.agents.image_analysis_agent import (
+            from backend.app.agents.image_analysis_agent import (
                 ImageAnalysisAgent
             )
 
@@ -75,7 +74,7 @@ class AgentRouter:
 
         try:
 
-            from app.agents.fatigue_scoring_agent import (
+            from backend.app.agents.fatigue_scoring_agent import (
                 FatigueScoringAgent
             )
 
@@ -92,31 +91,6 @@ class AgentRouter:
                 f"could not be loaded: {e}"
             )
 
-        # ---------------------------------------------
-        # RECOMMENDATION AGENT
-        # ---------------------------------------------
-
-        try:
-
-            from app.agents.recommendation_agent import (
-                RecommendationAgent
-            )
-
-            self.recommendation_agent = (
-                RecommendationAgent()
-            )
-
-            print(
-                "RecommendationAgent loaded successfully."
-            )
-
-        except Exception as e:
-
-            print(
-                f"Warning: RecommendationAgent "
-                f"could not be loaded: {e}"
-            )
-
     # =================================================
     # MEMBER B
     # =================================================
@@ -128,7 +102,7 @@ class AgentRouter:
 
         try:
 
-            from app.rag.pipeline import RAGPipeline
+            from backend.app.rag.pipeline import RAGPipeline
 
             self.rag_pipeline = RAGPipeline()
 
@@ -310,58 +284,9 @@ class AgentRouter:
         rag_data: Dict[str, Any]
     ) -> str:
 
-        # If RecommendationAgent is unavailable,
-        # use the built-in fallback recommendation.
-
-        if self.recommendation_agent is None:
-
-            return self._default_recommendation(
-                fatigue_data
-            )
-
-        payload = {
-            "fatigue": fatigue_data,
-            "knowledge": rag_data
-        }
-
-        if hasattr(
-            self.recommendation_agent,
-            "run"
-        ):
-
-            result = (
-                self.recommendation_agent.run(
-                    payload
-                )
-            )
-
-        elif hasattr(
-            self.recommendation_agent,
-            "recommend"
-        ):
-
-            result = (
-                self.recommendation_agent.recommend(
-                    payload
-                )
-            )
-
-        else:
-
-            return self._default_recommendation(
-                fatigue_data
-            )
-
-        if isinstance(result, dict):
-
-            return str(
-                result.get(
-                    "recommendation",
-                    result
-                )
-            )
-
-        return str(result)
+        return self._default_recommendation(
+            fatigue_data
+        )
 
     # =================================================
     # FALLBACK RECOMMENDATION

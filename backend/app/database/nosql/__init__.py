@@ -1,8 +1,8 @@
-from app.database.firestore.connection import (
+from backend.app.database.firestore.connection import (
     get_firestore
 )
 
-from app.database.firestore.crud import (
+from backend.app.database.firestore.crud import (
     save_session,
     get_session,
     get_sessions,

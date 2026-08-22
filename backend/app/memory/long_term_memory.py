@@ -9,7 +9,7 @@ class LongTermMemory:
 
         try:
 
-            from app.database.firestore.connection import (
+            from backend.app.database.firestore.connection import (
                 get_firestore
             )
 

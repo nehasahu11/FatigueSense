@@ -4,11 +4,11 @@ from fastapi import (
     HTTPException
 )
 
-from app.api.dependencies import (
+from backend.app.api.dependencies import (
     get_history_service
 )
 
-from app.services.history_service import (
+from backend.app.services.history_service import (
     HistoryService
 )
 

@@ -1,8 +1,8 @@
-from app.database.mysql.connection import (
+from backend.app.database.mysql.connection import (
     SessionLocal
 )
 
-from app.database.mysql.crud import (
+from backend.app.database.mysql.crud import (
     get_user_history,
     get_analysis
 )

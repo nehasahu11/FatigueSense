@@ -6,9 +6,9 @@ from langgraph.graph import (
     END
 )
 
-from app.orchestration.state import FatigueState
+from backend.app.orchestration.state import FatigueState
 
-from app.orchestration.nodes import (
+from backend.app.orchestration.nodes import (
     initialize_state,
     load_memory,
     member_a_node,

@@ -1,9 +1,9 @@
-from app.orchestration.graph import (
+from backend.app.orchestration.graph import (
     fatigue_graph,
     run_workflow
 )
 
-from app.orchestration.state import (
+from backend.app.orchestration.state import (
     FatigueState
 )
 

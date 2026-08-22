@@ -1,5 +1,5 @@
-from app.database.mysql.connection import engine
-from app.database.mysql.models import Base
+from backend.app.database.mysql.connection import engine
+from backend.app.database.mysql.models import Base
 
 print("Creating MySQL tables...")
 

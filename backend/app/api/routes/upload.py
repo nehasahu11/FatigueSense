@@ -6,11 +6,11 @@ from fastapi import (
     Depends
 )
 
-from app.api.dependencies import (
+from backend.app.api.dependencies import (
     get_upload_service
 )
 
-from app.services.upload_service import (
+from backend.app.services.upload_service import (
     UploadService
 )
 
