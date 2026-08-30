@@ -64,14 +64,14 @@ jobs:
 
       - name: Create MySQL tables
         env:
-          PYTHONPATH: backend
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/backend
           MYSQL_URL: mysql+pymysql://root:password@127.0.0.1:3306/fatiguesense
         run: |
           python backend/scripts/setup_mysql.py
 
       - name: Run tests
         env:
-          PYTHONPATH: backend
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/backend
           MYSQL_URL: mysql+pymysql://root:password@127.0.0.1:3306/fatiguesense
         run: |
           python -m pytest backend/tests -v
